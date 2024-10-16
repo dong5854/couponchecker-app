@@ -1,7 +1,10 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
+
+List<String> titles = <String>[
+  '사용가능',
+  '사용완료',
+  '업로드',
+  ];
 
 void main() {
   runApp(MyApp());
@@ -12,197 +15,95 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-        ),
-        home: MyHomePage(),
-      ),
+    return MaterialApp(
+      theme: ThemeData(
+          colorSchemeSeed: const Color(0xff6750a4), useMaterial3: true),
+      home: const CouponCheckerAppBar(),
     );
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-
-  var selectedIndex = 0;
+class CouponCheckerAppBar extends StatelessWidget {
+  const CouponCheckerAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = GeneratorPage();
-        break;
-      case 1:
-        page = FavoritesPage();
-        break;
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
+    final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
+    const int tabsCount = 3;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Scaffold(
-          body: Row(
-            children: [
-              SafeArea(
-                child: NavigationRail(
-                  extended: constraints.maxWidth >= 600,
-                  destinations: [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.favorite),
-                      label: Text('Favorites'),
-                    ),
-                  ],
-                  selectedIndex: selectedIndex,
-                  onDestinationSelected: (value) {
-                    setState(() {
-                      selectedIndex = value;
-                    });
-                  },
-                ),
+    return DefaultTabController(
+      initialIndex: 1,
+      length: tabsCount,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('쿠폰함'),
+          // This check specifies which nested Scrollable's scroll notification
+          // should be listened to.
+          //
+          // When `ThemeData.useMaterial3` is true and scroll view has
+          // scrolled underneath the app bar, this updates the app bar
+          // background color and elevation.
+          //
+          // This sets `notification.depth == 1` to listen to the scroll
+          // notification from the nested `ListView.builder`.
+          notificationPredicate: (ScrollNotification notification) {
+            return notification.depth == 1;
+          },
+          // The elevation value of the app bar when scroll view has
+          // scrolled underneath the app bar.
+          scrolledUnderElevation: 4.0,
+          shadowColor: Theme.of(context).shadowColor,
+          bottom: TabBar(
+            tabs: <Widget>[
+              Tab(
+                icon: const Icon(Icons.wallet),
+                text: titles[0],
               ),
-              Expanded(
-                child: Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: page,
-                ),
+              Tab(
+                icon: const Icon(Icons.check),
+                text: titles[1],
+              ),
+              Tab(
+                icon: const Icon(Icons.add_box_outlined),
+                text: titles[2],
               ),
             ],
           ),
-        );
-      }
-    );
-  }
-}
-
-
-class GeneratorPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(pair.asLowerCase, style: style, semanticsLabel: "${pair.first} ${pair.second}",),
-      ),
-    );
-  }
-}
-
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
         ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-          ),
-      ],
+        body: TabBarView(
+          children: <Widget>[
+            ListView.builder(
+              itemCount: 25,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  tileColor: index.isOdd ? oddItemColor : evenItemColor,
+                  title: Text('${titles[0]} $index'),
+                );
+              },
+            ),
+            ListView.builder(
+              itemCount: 25,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  tileColor: index.isOdd ? oddItemColor : evenItemColor,
+                  title: Text('${titles[1]} $index'),
+                );
+              },
+            ),
+            ListView.builder(
+              itemCount: 25,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  tileColor: index.isOdd ? oddItemColor : evenItemColor,
+                  title: Text('${titles[2]} $index'),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
