@@ -21,12 +21,12 @@ class CouponCheckerAppBar extends StatelessWidget {
     'title': '근본 뚱카츄',
   },
   {
-    'imageUrl': 'https://images.pokemoncard.io/images/xyp/xyp-XY202.png',
-    'title': '근본 뚱카츄 폴짝',
+    'imageUrl': 'https://images.pokemoncard.io/images/pop5/pop5-12.png',
+    'title': '고래와 피카츄',
   },
   {
-    'imageUrl': 'https://images.pokemoncard.io/images/basep/basep-1.png',
-    'title': '90년대 3d 게임 뚱카츄',
+    'imageUrl': 'https://images.pokemoncard.io/images/swsh4/swsh4-188.png',
+    'title': '무지개 뚱카츄',
   },
 ];
 
@@ -38,7 +38,7 @@ class CouponCheckerAppBar extends StatelessWidget {
     ];
 
     return DefaultTabController(
-      initialIndex: 1,
+      initialIndex: 0,
       length: tabsCount,
       child: Scaffold(
         appBar: AppBar(
