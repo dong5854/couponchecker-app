@@ -5,31 +5,29 @@ class CouponCheckerAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
     final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
     const int tabsCount = 3;
 
     final List<Map<String, String>> items = [
-  {
-    'imageUrl': 'https://images.pokemoncard.io/images/cel25/cel25-7.png',
-    'title': '날으는 뚱카츄',
-  },
-  {
-    'imageUrl': 'https://images.pokemoncard.io/images/base2/base2-60.png',
-    'title': '근본 뚱카츄',
-  },
-  {
-    'imageUrl': 'https://images.pokemoncard.io/images/cel25/cel25-9.png',
-    'title': '서핑 뚱카츄',
-  },
-  {
-    'imageUrl': 'https://images.pokemoncard.io/images/swsh4/swsh4-188.png',
-    'title': '무지개 뚱카츄',
-  },
-];
-
+      {
+        'imageUrl': 'https://images.pokemoncard.io/images/cel25/cel25-7.png',
+        'title': '날으는 뚱카츄',
+      },
+      {
+        'imageUrl': 'https://images.pokemoncard.io/images/base2/base2-60.png',
+        'title': '근본 뚱카츄',
+      },
+      {
+        'imageUrl': 'https://images.pokemoncard.io/images/cel25/cel25-9.png',
+        'title': '서핑 뚱카츄',
+      },
+      {
+        'imageUrl': 'https://images.pokemoncard.io/images/swsh4/swsh4-188.png',
+        'title': '무지개 뚱카츄',
+      },
+    ];
 
     final List<String> titles = <String>[
       '사용가능',
@@ -43,20 +41,9 @@ class CouponCheckerAppBar extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('쿠폰함'),
-          // This check specifies which nested Scrollable's scroll notification
-          // should be listened to.
-          //
-          // When `ThemeData.useMaterial3` is true and scroll view has
-          // scrolled underneath the app bar, this updates the app bar
-          // background color and elevation.
-          //
-          // This sets `notification.depth == 1` to listen to the scroll
-          // notification from the nested `ListView.builder`.
           notificationPredicate: (ScrollNotification notification) {
             return notification.depth == 1;
           },
-          // The elevation value of the app bar when scroll view has
-          // scrolled underneath the app bar.
           scrolledUnderElevation: 4.0,
           shadowColor: Theme.of(context).shadowColor,
           bottom: TabBar(
@@ -76,49 +63,77 @@ class CouponCheckerAppBar extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
-          children: <Widget>[
-            ListView.builder(
-              itemCount: 25,
-              itemBuilder: (context, index) {
-                return Card(
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),),
-                          elevation: 5,
-                          margin: EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Image.network(
-                        items[index%4]['imageUrl']!,
-                        fit: BoxFit.fill,
-                        ),
-                        Text(items[index%4]['title']!), // 각 항목의 제목
-                        ],
-                        ),
+        body: SafeArea(
+          child: TabBarView(
+            children: <Widget>[
+              ListView.builder(
+                itemCount: 25,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Container(
+                              color: Colors.black.withOpacity(0),
+                              child: Center(
+                                child: Image.network(
+                                  items[index % 4]['imageUrl']!,
+                                  fit: BoxFit.contain,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                ),
+                              ),
+                            ),
                           );
-  },
-),
-            ListView.builder(
-              itemCount: 25,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  leading: Image.network(items[0]['imageUrl']!),
-                  tileColor: index.isOdd ? oddItemColor : evenItemColor,
-                  title: Text('${titles[1]} $index'),
-                );
-              },
-            ),
-            ListView.builder(
-              itemCount: 25,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  tileColor: index.isOdd ? oddItemColor : evenItemColor,
-                  title: Text('${titles[2]} $index'),
-                );
-              },
-            ),
-          ],
+                        },
+                      );
+                    },
+                    child: Card(
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      elevation: 5,
+                      margin: const EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Image.network(
+                            items[index % 4]['imageUrl']!,
+                            fit: BoxFit.fill,
+                          ),
+                          Text(items[index % 4]['title']!), // 각 항목의 제목
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListView.builder(
+                itemCount: 25,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    leading: Image.network(items[0]['imageUrl']!),
+                    tileColor: index.isOdd ? oddItemColor : evenItemColor,
+                    title: Text('${titles[1]} $index'),
+                  );
+                },
+              ),
+              ListView.builder(
+                itemCount: 25,
+                itemBuilder: (BuildContext context, int index) {
+                  return ListTile(
+                    tileColor: index.isOdd ? oddItemColor : evenItemColor,
+                    title: Text('${titles[2]} $index'),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
