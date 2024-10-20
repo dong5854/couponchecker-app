@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "802136451096",
+    "project_id": "couponchecker-406307",
+    "storage_bucket": "couponchecker-406307.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802136451096:android:fab85ea091977d4e3d7b6d",
+        "android_client_info": {
+          "package_name": "com.dong.cc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "802136451096-qpqttef9a300kucp2sbo6h9semc3r7u1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJF3PdfvcrUQf730ucEKWK_XEJUEYhE0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "802136451096-qpqttef9a300kucp2sbo6h9semc3r7u1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
