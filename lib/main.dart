@@ -1,11 +1,31 @@
 import 'package:couponchecker/screen/coupon_screen.dart';
+import 'package:couponchecker/screen/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
+
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+Future<UserCredential> signInWithGoogle() async {
+  // Trigger the authentication flow
+  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+  // Obtain the auth details from the request
+  final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+  // Create a new credential
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth?.accessToken,
+    idToken: googleAuth?.idToken,
+  );
+
+  // Once signed in, return the UserCredential
+  return await FirebaseAuth.instance.signInWithCredential(credential);
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,11 +45,7 @@ class MyApp extends StatelessWidget {
       initialRoute: FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/',
         routes: {
           '/' : (context) => const CouponChecker(),
-          '/sign-in' : (context) => SignInScreen(
-            providers: [
-              EmailAuthProvider(),
-            ],
-          )
+          '/sign-in' : (context) => const Login(),
         },
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

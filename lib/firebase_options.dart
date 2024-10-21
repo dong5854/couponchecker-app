@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '802136451096',
     projectId: 'couponchecker-406307',
     storageBucket: 'couponchecker-406307.appspot.com',
+    iosClientId: '802136451096-ko7qsa2dntm7vq417b9mfkaounlpkkbl.apps.googleusercontent.com',
     iosBundleId: 'com.example.couponchecker',
   );
 
@@ -73,6 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '802136451096',
     projectId: 'couponchecker-406307',
     storageBucket: 'couponchecker-406307.appspot.com',
+    iosClientId: '802136451096-ko7qsa2dntm7vq417b9mfkaounlpkkbl.apps.googleusercontent.com',
     iosBundleId: 'com.example.couponchecker',
   );
 
