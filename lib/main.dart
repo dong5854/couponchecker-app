@@ -1,5 +1,5 @@
 import 'package:couponchecker/screen/coupon_screen.dart';
-import 'package:couponchecker/screen/login.dart';
+import 'package:couponchecker/screen/google_login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       initialRoute: FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/',
         routes: {
           '/' : (context) => const CouponChecker(),
-          '/sign-in' : (context) => const Login(),
+          '/sign-in' : (context) => const GoogleLogin(),
         },
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
