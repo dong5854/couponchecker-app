@@ -4,8 +4,8 @@ import 'package:couponchecker/widget/app_bar.dart';
 import 'package:couponchecker/view/coupon_uploader_view.dart';
 import 'package:flutter/material.dart';
 
-class CouponChecker extends StatelessWidget {
-  const CouponChecker({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
