@@ -1,4 +1,4 @@
-import 'package:couponchecker/screen/%08splash.dart';
+import 'package:couponchecker/screen/splash.dart';
 import 'package:couponchecker/screen/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

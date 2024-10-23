@@ -2,34 +2,70 @@ import 'package:couponchecker/widget/coupon_card.dart';
 import 'package:couponchecker/widget/image_dialog.dart';
 import 'package:flutter/material.dart';
 
-class CouponListView extends StatelessWidget {
+import 'package:firebase_database/firebase_database.dart';
+
+class CouponListView extends StatefulWidget {
   const CouponListView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, String>> items = [
-      {'imageUrl': 'https://images.pokemoncard.io/images/cel25/cel25-7.png', 'title': '날으는 뚱카츄'},
-      {'imageUrl': 'https://images.pokemoncard.io/images/base2/base2-60.png', 'title': '근본 뚱카츄'},
-      {'imageUrl': 'https://images.pokemoncard.io/images/cel25/cel25-9.png', 'title': '서핑 뚱카츄'},
-      {'imageUrl': 'https://images.pokemoncard.io/images/swsh4/swsh4-188.png', 'title': '무지개 뚱카츄'},
-    ];
+  State<CouponListView> createState() => _CouponListViewState();
+}
 
-    return ListView.builder(
-      itemCount: 25,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return ImageDialog(imageUrl: items[index % 4]['imageUrl']!);
+class _CouponListViewState extends State<CouponListView> {
+  final DatabaseReference ref = FirebaseDatabase.instance.ref();
+  
+    Future<List<Map<String, dynamic>>> _fetchCoupons() async {
+    final DataSnapshot snapshot = await ref.child("coupon").get();
+    final List<Map<String, dynamic>> coupons = [];
+
+    if (snapshot.exists) {
+      Map<dynamic, dynamic>? data = snapshot.value as Map<dynamic, dynamic>?;
+
+      data?.forEach((key, value) {
+        coupons.add({
+          'name': value['name'],
+          'image_url': value['image_url'],
+        });
+      });
+    }
+    return coupons;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _fetchCoupons(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No coupons available.'));
+        }
+
+        final coupons = snapshot.data!;
+
+        return ListView.builder(
+          itemCount: coupons.length,
+          itemBuilder: (context, index) {
+            final coupon = coupons[index];
+
+            return GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return ImageDialog(imageUrl: coupon['image_url']!);
+                  },
+                );
               },
+              child: CouponCard(
+                imageUrl: coupon['image_url']!,
+                title: coupon['name']!,
+              ),
             );
           },
-          child: CouponCard(
-            imageUrl: items[index % 4]['imageUrl']!,
-            title: items[index % 4]['title']!,
-          ),
         );
       },
     );
