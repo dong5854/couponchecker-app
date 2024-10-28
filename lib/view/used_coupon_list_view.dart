@@ -29,6 +29,8 @@ class UsedCouponListView extends StatelessWidget {
           child: CouponCard(
             imageUrl: items[index % 4]['imageUrl']!,
             title: items[index % 4]['title']!,
+            expireAt: "2024-04-14",
+            isUsed: false,
           ),
         );
       },

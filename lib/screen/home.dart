@@ -16,8 +16,8 @@ class HomeScreen extends StatelessWidget {
         appBar: const CouponCheckerAppBar(),
         body: TabBarView(
             children: <Widget>[
-              CouponListView(),
-              UsedCouponListView(),
+              CouponListView(viewUsed:false),
+              CouponListView(viewUsed:true),
               CouponUploaderView(),
             ],
           ),

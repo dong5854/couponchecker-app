@@ -1,40 +1,41 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:couponchecker/util/formatter.dart';
 import 'package:couponchecker/widget/coupon_card.dart';
 import 'package:couponchecker/widget/image_dialog.dart';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_database/firebase_database.dart';
-
 class CouponListView extends StatefulWidget {
-  const CouponListView({super.key});
+  final bool viewUsed;
+
+  const CouponListView({required this.viewUsed, super.key});
 
   @override
   State<CouponListView> createState() => _CouponListViewState();
 }
 
 class _CouponListViewState extends State<CouponListView> {
-  final DatabaseReference ref = FirebaseDatabase.instance.ref();
+  final db = FirebaseFirestore.instance;
   
-    Future<List<Map<String, dynamic>>> _fetchCoupons() async {
-    final DataSnapshot snapshot = await ref.child("coupon").get();
+  Future<List<Map<String, dynamic>>> _fetchCoupons(bool used) async {
+    final QuerySnapshot snapshot = await db.collection('coupon').where('used', isEqualTo: used).get();
     final List<Map<String, dynamic>> coupons = [];
 
-    if (snapshot.exists) {
-      Map<dynamic, dynamic>? data = snapshot.value as Map<dynamic, dynamic>?;
-
-      data?.forEach((key, value) {
-        coupons.add({
-          'name': value['name'],
-          'image_url': value['image_url'],
-        });
+    for (var doc in snapshot.docs) {
+      coupons.add({
+        'name': doc['name'],
+        'image_url' : doc['image_url'],
+        'expire_at' : doc['expire_at'],
+        'used' : doc['used']
       });
     }
+
     return coupons;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _fetchCoupons(),
+      future: _fetchCoupons(widget.viewUsed),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -63,6 +64,8 @@ class _CouponListViewState extends State<CouponListView> {
               child: CouponCard(
                 imageUrl: coupon['image_url']!,
                 title: coupon['name']!,
+                expireAt: formatDate(coupon['expire_at']!),
+                isUsed: coupon['used'],
               ),
             );
           },
