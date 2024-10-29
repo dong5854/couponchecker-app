@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:couponchecker/util/formatter.dart';
+import 'package:couponchecker/data/coupon_repository.dart';
+import 'package:couponchecker/model/coupon.dart';
 import 'package:couponchecker/widget/coupon_card.dart';
 import 'package:couponchecker/widget/image_dialog.dart';
 import 'package:flutter/material.dart';
@@ -14,28 +14,12 @@ class CouponListView extends StatefulWidget {
 }
 
 class _CouponListViewState extends State<CouponListView> {
-  final db = FirebaseFirestore.instance;
-  
-  Future<List<Map<String, dynamic>>> _fetchCoupons(bool used) async {
-    final QuerySnapshot snapshot = await db.collection('coupon').where('used', isEqualTo: used).get();
-    final List<Map<String, dynamic>> coupons = [];
-
-    for (var doc in snapshot.docs) {
-      coupons.add({
-        'name': doc['name'],
-        'image_url' : doc['image_url'],
-        'expire_at' : doc['expire_at'],
-        'used' : doc['used']
-      });
-    }
-
-    return coupons;
-  }
+  final couponRepository = CouponRepository();
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _fetchCoupons(widget.viewUsed),
+    return FutureBuilder<List<Coupon>>(
+      future: couponRepository.fetchCoupons(widget.viewUsed),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -57,16 +41,11 @@ class _CouponListViewState extends State<CouponListView> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return ImageDialog(imageUrl: coupon['image_url']!);
+                    return ImageDialog(imageUrl: coupon.imageUrl);
                   },
                 );
               },
-              child: CouponCard(
-                imageUrl: coupon['image_url']!,
-                title: coupon['name']!,
-                expireAt: formatDate(coupon['expire_at']!),
-                isUsed: coupon['used'],
-              ),
+              child: CouponCard(couponRepository: couponRepository, coupon: coupon),
             );
           },
         );

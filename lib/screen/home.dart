@@ -1,5 +1,4 @@
 import 'package:couponchecker/view/coupon_list_view.dart';
-import 'package:couponchecker/view/used_coupon_list_view.dart';
 import 'package:couponchecker/widget/app_bar.dart';
 import 'package:couponchecker/view/coupon_uploader_view.dart';
 import 'package:flutter/material.dart';
