@@ -16,15 +16,21 @@ class CouponCard extends StatefulWidget {
 class _CouponCardState extends State<CouponCard> {
   late Coupon coupon;
 
-    @override
+  @override
   void initState() {
     super.initState();
     coupon = widget.coupon;
   }
 
   void toggleUsage() {
-    widget.couponRepository.updateCoupons(coupon = Coupon(id: widget.coupon.id, name: widget.coupon.name, imageUrl: widget.coupon.imageUrl, expireAt: widget.coupon.expireAt, used: !widget.coupon.used));
-    setState(() {coupon;});
+    widget.couponRepository.updateCoupons(coupon = Coupon(
+      id: widget.coupon.id,
+      name: widget.coupon.name,
+      imageUrl: widget.coupon.imageUrl,
+      expireAt: widget.coupon.expireAt,
+      used: !widget.coupon.used,
+    ));
+    setState(() {});
   }
 
   @override
@@ -42,28 +48,50 @@ class _CouponCardState extends State<CouponCard> {
             width: 1000, // 최대 가로 크기
             height: 300, // 최대 세로 크기
             child: ClipRect(
-              child: Image.network(
-                widget.coupon.imageUrl,
-                fit: BoxFit.cover,
-                alignment: Alignment.topCenter
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    widget.coupon.imageUrl,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      }
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                              : null,
+                        ),
+                      );
+                    },
+                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                      return Center(child: Icon(Icons.error, color: Colors.red));
+                    },
+                  ),
+                ],
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Text(widget.coupon.name,
-            style: TextStyle(
+            child: Text(
+              widget.coupon.name,
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 18
+                fontSize: 18,
               ),
             ),
           ),
           Text("사용만료일: ${formatDate(widget.coupon.expireAt)}"),
-          Padding(padding: const EdgeInsets.all(12.0),
-          child: coupon.used ? 
-            FilledButton.tonal(onPressed: () {toggleUsage();}, child: const Text('사용완료')) : 
-            FilledButton(onPressed: () {toggleUsage();}, child: const Text('사용가능')),
-          )
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: coupon.used
+                ? FilledButton.tonal(onPressed: () { toggleUsage(); }, child: const Text('사용완료'))
+                : FilledButton(onPressed: () { toggleUsage(); }, child: const Text('사용가능')),
+          ),
         ],
       ),
     );
