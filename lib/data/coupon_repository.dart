@@ -14,4 +14,8 @@ class CouponRepository {
   Future<void> updateCoupons(Coupon coupon) async {
     db.collection('coupon').doc(coupon.id).set(coupon.toMap());
   }
+
+    Future<void> writeCoupon(Coupon coupon) async {
+    await db.collection('coupon').add(coupon.toMap());
+  }
 }

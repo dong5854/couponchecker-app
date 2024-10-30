@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Coupon {
-  final String id;
+  final String? id;
   final String name;
   final String imageUrl;
   final String expireAt;
   final bool used;
 
   Coupon({
-    required this.id,
+    this.id,
     required this.name,
     required this.imageUrl,
     required this.expireAt,

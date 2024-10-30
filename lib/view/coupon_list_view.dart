@@ -6,20 +6,19 @@ import 'package:flutter/material.dart';
 
 class CouponListView extends StatefulWidget {
   final bool viewUsed;
+  final CouponRepository couponRepository;
 
-  const CouponListView({required this.viewUsed, super.key});
+    const CouponListView({required this.viewUsed, required this.couponRepository, super.key});
 
   @override
   State<CouponListView> createState() => _CouponListViewState();
 }
 
 class _CouponListViewState extends State<CouponListView> {
-  final couponRepository = CouponRepository();
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Coupon>>(
-      future: couponRepository.fetchCoupons(widget.viewUsed),
+      future: widget.couponRepository.fetchCoupons(widget.viewUsed),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -45,7 +44,7 @@ class _CouponListViewState extends State<CouponListView> {
                   },
                 );
               },
-              child: CouponCard(couponRepository: couponRepository, coupon: coupon),
+              child: CouponCard(couponRepository: widget.couponRepository, coupon: coupon),
             );
           },
         );

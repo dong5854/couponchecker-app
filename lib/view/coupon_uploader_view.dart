@@ -1,8 +1,16 @@
+import 'package:couponchecker/data/coupon_repository.dart';
+import 'package:couponchecker/data/firebase_uploader.dart';
+import 'package:couponchecker/model/coupon.dart';
+import 'package:couponchecker/model/upload_file.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class CouponUploaderView extends StatelessWidget {
-  const CouponUploaderView({super.key});
+  final FirebaseUploader firebaseUploader;
+  final CouponRepository couponRepository;
+  const CouponUploaderView({required this.firebaseUploader, required this.couponRepository, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,22 +18,28 @@ class CouponUploaderView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('쿠폰 업로드'),
       ),
-      body: const CouponUploaderBody(),
+      body: CouponUploader(firebaseUploader: firebaseUploader, couponRepository: couponRepository),
     );
   }
 }
 
-class CouponUploaderBody extends StatefulWidget {
-  const CouponUploaderBody({super.key});
+class CouponUploader extends StatefulWidget {
+  final FirebaseUploader firebaseUploader;
+  final CouponRepository couponRepository;
+
+  const CouponUploader({required this.firebaseUploader, required this.couponRepository, super.key});
 
   @override
-  State<CouponUploaderBody> createState() => _CouponUploaderBodyState();
+  State<CouponUploader> createState() => _CouponUploaderState();
 }
 
-class _CouponUploaderBodyState extends State<CouponUploaderBody> {
+class _CouponUploaderState extends State<CouponUploader> {
   DateTime _selectedDate = DateTime.now();
   late TextEditingController _couponNameController;
-  String? _selectedFileName;
+  File? _selectedImage;
+  bool _isLoading = false;
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -44,7 +58,7 @@ class _CouponUploaderBodyState extends State<CouponUploaderBody> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
-      lastDate: DateTime(2030)
+      lastDate: DateTime(2100),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -53,17 +67,59 @@ class _CouponUploaderBodyState extends State<CouponUploaderBody> {
     }
   }
 
-  void _selectFile() {
-    // TODO: Implement file selection logic
-    setState(() {
-      _selectedFileName = 'example.pdf'; // Replace with actual selected file name
-    });
+  Future<void> _selectImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
+    } else {
+      setState(() {
+        _selectedImage = null;
+      });
+    }
   }
 
-  void _uploadCoupon() {
-    // TODO: Implement upload logic
+  void _uploadCoupon() async {
+    if (_selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('이미지를 선택하세요.'),
+          duration: Duration(milliseconds: 300)
+        ));
+      return; 
+    }
+    
+    setState(() {
+      _isLoading = true;
+    });
+
     final String couponName = _couponNameController.text;
-    print('Uploading coupon: $couponName, Expiry: $_selectedDate, File: $_selectedFileName');
+    final uploadFile = UploadFile(file: _selectedImage!, name: couponName, expireDate: _selectedDate);
+    final imageUrl = await widget.firebaseUploader.uploadFile(uploadFile);
+    await widget.couponRepository.writeCoupon(
+      Coupon(
+        name: uploadFile.name, 
+        imageUrl: imageUrl, 
+        expireAt: uploadFile.expireDate.toIso8601String(), 
+        used: false
+      ),
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$couponName 쿠폰이 성공적으로 업로드되었습니다.'),
+          duration: Duration(milliseconds: 500)
+          ),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    print('Uploading coupon: $couponName, Expiry: ${_selectedDate.toIso8601String()}, Image: ${_selectedImage?.path}');
   }
 
   @override
@@ -74,11 +130,13 @@ class _CouponUploaderBodyState extends State<CouponUploaderBody> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ElevatedButton(
-            onPressed: _selectFile,
-            child: const Text('파일 선택'),
+            onPressed: _selectImage,
+            child: const Text('이미지 선택'),
           ),
           const SizedBox(height: 8),
-          Text(_selectedFileName ?? '선택된 파일 없음', style: const TextStyle(fontSize: 14)),
+          _selectedImage != null
+              ? Image.file(_selectedImage!, height: 100)
+              : Text('선택된 이미지 없음', style: const TextStyle(fontSize: 14)),
           const SizedBox(height: 24),
           TextField(
             controller: _couponNameController,
@@ -95,19 +153,18 @@ class _CouponUploaderBodyState extends State<CouponUploaderBody> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              print(context);
-              _selectDate(context);
-            },
+            onPressed: () => _selectDate(context),
             child: Text(DateFormat('yyyy년 MM월 dd일').format(_selectedDate)),
           ),
           const Spacer(),
           ElevatedButton(
-            onPressed: _uploadCoupon,
+            onPressed: _isLoading ? null : _uploadCoupon,
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
             ),
-            child: const Text('업로드'),
+            child: _isLoading 
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text('업로드'),
           ),
         ],
       ),

@@ -1,7 +1,8 @@
 import 'package:couponchecker/main.dart';
 import 'package:couponchecker/screen/login.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Import FirebaseAuth
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -43,6 +44,15 @@ class _SplashScreenState extends State<SplashScreen> {
       home: Scaffold(
         body: _isLogin ? MyApp() : LoginScreen(), // Display MyApp or LoginScreen based on login status
       ),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ko'),
+      ],
     );
   }
 }
