@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "802136451096-gt171q1ktlp20erl7md7c6qiedo0acer.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dong.cc",
+            "certificate_hash": "48dd8b32d90f5d89a5004ade57294f04162058c8"
+          }
+        },
+        {
           "client_id": "802136451096-c6ucmqt97va6j5qlih13bkjpddovftpl.apps.googleusercontent.com",
           "client_type": 3
         }
