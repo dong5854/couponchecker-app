@@ -5,7 +5,7 @@ class CouponRepository {
   final db = FirebaseFirestore.instance;
 
   Future<List<Coupon>> fetchCoupons(bool used) async {
-    final QuerySnapshot snapshot = await db.collection('coupon').where('used', isEqualTo: used).get();
+    final QuerySnapshot snapshot = await db.collection('coupon').orderBy('expire_at').where('used', isEqualTo: used).get();
     final List<Coupon> coupons = snapshot.docs.map((doc) => Coupon.fromDocument(doc)).toList();
 
     return coupons;
