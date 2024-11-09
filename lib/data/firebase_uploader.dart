@@ -18,4 +18,19 @@ class FirebaseUploader {
       rethrow;
     }
   }
+
+  Future<String> uploadFileWeb(UploadFileWeb uploadFile) async {
+    final String formattedDate = uploadFile.expireDate.toIso8601String();
+    final String filePath = 'couponchecker/$formattedDate-${uploadFile.name}-${uploadFile.file.fileName}';
+
+    try {
+      final ref = storage.ref(filePath);
+      final uploadTask = await ref.putData(uploadFile.file.data!);
+      final downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading file: $e');
+      rethrow;
+    }
+  }
 }

@@ -1,1 +1,52 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"couponchecker-406307","appId":"1:802136451096:android:fab85ea091977d4e3d7b6d","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"couponchecker-406307","appId":"1:802136451096:ios:5959625cef4a6d6c3d7b6d","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"couponchecker-406307","appId":"1:802136451096:ios:5959625cef4a6d6c3d7b6d","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"couponchecker-406307","configurations":{"android":"1:802136451096:android:fab85ea091977d4e3d7b6d","ios":"1:802136451096:ios:5959625cef4a6d6c3d7b6d","macos":"1:802136451096:ios:5959625cef4a6d6c3d7b6d","web":"1:802136451096:web:c0368b8cfad0a5223d7b6d","windows":"1:802136451096:web:e1a30c80946a417c3d7b6d"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "couponchecker-406307",
+          "appId": "1:802136451096:android:fab85ea091977d4e3d7b6d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "couponchecker-406307",
+          "appId": "1:802136451096:ios:5959625cef4a6d6c3d7b6d",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "couponchecker-406307",
+          "appId": "1:802136451096:ios:5959625cef4a6d6c3d7b6d",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "couponchecker-406307",
+          "configurations": {
+            "android": "1:802136451096:android:fab85ea091977d4e3d7b6d",
+            "ios": "1:802136451096:ios:5959625cef4a6d6c3d7b6d",
+            "macos": "1:802136451096:ios:5959625cef4a6d6c3d7b6d",
+            "web": "1:802136451096:web:c0368b8cfad0a5223d7b6d",
+            "windows": "1:802136451096:web:e1a30c80946a417c3d7b6d"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "asia-east1"
+    }
+  }
+}

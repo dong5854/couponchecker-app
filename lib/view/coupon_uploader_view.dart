@@ -2,7 +2,9 @@ import 'package:couponchecker/data/coupon_repository.dart';
 import 'package:couponchecker/data/firebase_uploader.dart';
 import 'package:couponchecker/model/coupon.dart';
 import 'package:couponchecker/model/upload_file.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker_web/image_picker_web.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -37,6 +39,7 @@ class _CouponUploaderState extends State<CouponUploader> {
   DateTime _selectedDate = DateTime.now();
   late TextEditingController _couponNameController;
   File? _selectedImage;
+  MediaInfo? _selectedImageWeb;
   bool _isLoading = false;
 
   final ImagePicker _picker = ImagePicker();
@@ -72,6 +75,7 @@ class _CouponUploaderState extends State<CouponUploader> {
     if (image != null) {
       setState(() {
         _selectedImage = File(image.path);
+        _selectedImageWeb = null;
       });
     } else {
       setState(() {
@@ -80,8 +84,22 @@ class _CouponUploaderState extends State<CouponUploader> {
     }
   }
 
+  Future<void> _selectImageWeb() async {
+    final MediaInfo? imageInfo = await ImagePickerWeb.getImageInfo();
+    if (imageInfo != null) {
+      setState(() {
+        _selectedImageWeb = imageInfo;
+        _selectedImage = null;
+      });
+    } else {
+      setState(() {
+        _selectedImageWeb = null;
+      });
+    }
+  }
+
   void _uploadCoupon() async {
-    if (_selectedImage == null) {
+    if (_selectedImage == null && _selectedImageWeb == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('이미지를 선택하세요.'),
@@ -94,17 +112,7 @@ class _CouponUploaderState extends State<CouponUploader> {
       _isLoading = true;
     });
 
-    final String couponName = _couponNameController.text;
-    final uploadFile = UploadFile(file: _selectedImage!, name: couponName, expireDate: _selectedDate);
-    final imageUrl = await widget.firebaseUploader.uploadFile(uploadFile);
-    await widget.couponRepository.writeCoupon(
-      Coupon(
-        name: uploadFile.name, 
-        imageUrl: imageUrl, 
-        expireAt: uploadFile.expireDate.toIso8601String(), 
-        used: false
-      ),
-    );
+    String couponName = kIsWeb ? await _uploadCouponOnWeb() : await _uploadCouponOnDevice();
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,6 +130,36 @@ class _CouponUploaderState extends State<CouponUploader> {
     print('Uploading coupon: $couponName, Expiry: ${_selectedDate.toIso8601String()}, Image: ${_selectedImage?.path}');
   }
 
+  Future<String> _uploadCouponOnDevice() async {
+    final String couponName = _couponNameController.text;
+    final uploadFile = UploadFile(file: _selectedImage!, name: couponName, expireDate: _selectedDate);
+    final imageUrl = await widget.firebaseUploader.uploadFile(uploadFile);
+    await widget.couponRepository.writeCoupon(
+      Coupon(
+        name: uploadFile.name, 
+        imageUrl: imageUrl, 
+        expireAt: uploadFile.expireDate.toIso8601String(), 
+        used: false
+      ),
+    );
+    return couponName;
+  }
+
+  Future<String> _uploadCouponOnWeb() async {
+    final String couponName = _couponNameController.text;
+    final uploadFile = UploadFileWeb(file: _selectedImageWeb!, name: couponName, expireDate: _selectedDate);
+    final imageUrl = await widget.firebaseUploader.uploadFileWeb(uploadFile);
+    await widget.couponRepository.writeCoupon(
+      Coupon(
+        name: uploadFile.name, 
+        imageUrl: imageUrl, 
+        expireAt: uploadFile.expireDate.toIso8601String(), 
+        used: false
+      ),
+    );
+    return couponName;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -130,13 +168,16 @@ class _CouponUploaderState extends State<CouponUploader> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ElevatedButton(
-            onPressed: _selectImage,
+            onPressed: kIsWeb ? _selectImageWeb : _selectImage,
             child: const Text('이미지 선택'),
           ),
           const SizedBox(height: 8),
-          _selectedImage != null
-              ? Image.file(_selectedImage!, height: 100)
-              : Text('선택된 이미지 없음', style: const TextStyle(fontSize: 14)),
+          if (_selectedImage != null)
+            Image.file(_selectedImage!, height: 100)
+          else if (_selectedImageWeb != null)
+            Image.memory(Uint8List.fromList(_selectedImageWeb!.data!), height: 100)
+          else
+            Text('선택된 이미지 없음', style: const TextStyle(fontSize: 14)),
           const SizedBox(height: 24),
           TextField(
             controller: _couponNameController,
